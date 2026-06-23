@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit & Cetak Struk SPBU</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="halaman-input">
+        <div class="app-header">
+            <span class="header-title">Edit Struk</span>
+        </div>
+
+        <div class="form-container">
+            <div class="input-group">
+                <input type="text" id="no_trans" placeholder="Nomor Nota / Transaksi">
+            </div>
+
+            <div class="form-row">
+                <div class="input-group flex-1">
+                    <select id="shift">
+                        <option value="1">Shift 1</option>
+                        <option value="2">Shift 2</option>
+                        <option value="3">Shift 3</option>
+                    </select>
+                </div>
+                <div class="input-group flex-2">
+                    <input type="datetime-local" id="waktu">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group flex-1">
+                    <select id="pompa">
+                        <option value="1">Pompa 1</option>
+                        <option value="2">Pompa 2</option>
+                        <option value="3">Pompa 3</option>
+                    </select>
+                </div>
+                <div class="input-group flex-1">
+                    <select id="selang">
+                        <option value="1">Selang 1</option>
+                        <option value="2">Selang 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="operator" placeholder="Operator">
+            </div>
+
+            <div class="input-group">
+                <select id="jenis_bbm">
+                    <option value="PERTALITE">Pertalite</option>
+                    <option value="PERTAMAX">Pertamax</option>
+                    <option value="SOLAR">Biosolar</option>
+                </select>
+                <div style="position: absolute; right: 12px; top: 10px; font-size: 13px; color: #666;">10.000 / Liter</div>
+            </div>
+
+            <div class="form-row">
+                <div class="input-group flex-2">
+                    <input type="number" id="jumlah" placeholder="Jumlah Pembelian">
+                </div>
+                <div class="input-group flex-1">
+                    <input type="text" id="volume" placeholder="Volume" readonly>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="number" id="pembayaran" placeholder="Jumlah Pembayaran (Rp.)">
+            </div>
+
+            <div class="kembalian-text">Kembalian = 0</div>
+
+            <hr class="divider">
+
+            <div class="input-group">
+                <input type="number" id="kilometer" placeholder="Kilometer (Opsional)">
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="no_plat" placeholder="No.Polisi (Opsional)">
+            </div>
+
+            <button id="btn-bt" class="btn btn-bluetooth">🔗 HUBUNGKAN PRINTER BLUETOOTH</button>
+            <button id="btn-simpan" class="btn btn-submit">SIMPAN</button>
+        </div>
+    </div>
+
+
+    <div id="halaman-print" class="hidden">
+        <div class="print-header">
+            <button id="btn-kembali" class="back-btn">←</button>
+            <span class="header-title">Print</span>
+            <button id="btn-cetak-thermal" class="print-icon-btn">🖨️</button>
+        </div>
+        <div class="struk-paper" style="text-align: left;">
+            <div class="struk-logo-container" style="text-align: center;">
+                <img src="logo.png" alt="PERTAMINA" class="struk-logo" onerror="this.style.display='none'">
+            </div>
+            <div class="font-bold" style="text-align: center; margin-bottom: 10px;">
+                34-41103<br>
+                SPBU RAYA KEBON KOLOT<br>
+                JL. RAYA KEBON KOLOT
+            </div>
+            <div class="struk-row-split">
+                <span>Shift : <span id="out-shift">-</span></span>
+                <span>No. Trans : <span id="out-notrans">-</span></span>
+            </div>
+            <div>Waktu : <span id="out-waktu">-</span></div>
+            
+            <div class="struk-line">-------------------------------------</div>
+
+            <div class="struk-row-split">
+                <span>Pulau/Pompa</span>
+                <span id="out-pompa">: -</span>
+            </div>
+            <div class="struk-row-split">
+                <span>Operator</span>
+                <span id="out-operator">: -</span>
+            </div>
+            <div class="struk-row-split">
+                <span>Jenis BBM</span>
+                <span id="out-bbm">: -</span>
+            </div>
+            <div class="struk-row-split">
+                <span>Volume</span>
+                <span id="out-volume">: -</span>
+            </div>
+
+            <div class="struk-line">-------------------------------------</div>
+            <div>Informasi Harga BBM (Rp/Liter)</div>
+            <div class="struk-row-split">
+                <span>Harga Non Subsidi</span>
+                <span>: 18.040</span>
+            </div>
+            <div class="struk-row-split">
+                <span>Subsidi Pemerintah</span>
+                <span>: 8.040</span>
+            </div>
+            <div class="struk-row-split">
+                <span>Harga Jual</span>
+                <span>: 10.000</span>
+            </div>
+
+            <div class="struk-line">-------------------------------------</div>
+            <div>Total Penjualan (Rp)</div>
+            <div class="struk-row-split">
+                <span>Tanpa Subsidi</span>
+                <span id="out-tanpasubsidi">: -</span>
+            </div>
+            <div class="struk-row-split">
+                <span>Subsidi Pemerintah</span>
+                <span id="out-totalsubsidi">: -</span>
+            </div>
+            <div class="struk-row-split">
+                <span>Dibayar Konsumen</span>
+                <span id="out-dibayar">: -</span>
+            </div>
+
+            <div class="struk-line">-------------------------------------</div>
+            <div class="struk-row-split">
+                <span class="font-bold">CASH</span>
+                <span id="out-cash" style="text-align: right; flex: 1;"class="font-bold">0</span>
+            </div>
+            <div class="struk-row-split">
+                <span class="font-bold">CHANGE</span>
+                <span id="out-change" style="text-align: right; flex: 1;" class="font-bold" >-</span>
+            </div>
+
+            <div class="struk-line">-------------------------------------</div>
+            
+            <div class="struk-row-split">
+                <span>Kilometer</span>
+                <span id="out-kilometer">: -</span>
+            </div>
+            <div class="struk-row-split">
+                <span>No. Plat</span>
+                <span id="out-plat">: -</span>
+            </div>
+
+            <div class="struk-line">-------------------------------------</div>
+
+            <div style="text-align: center; margin-top: 10px; font-size: 11px; width: 100%;">
+                Anda mendapat subsidi dari<br>
+                Pemerintah sebesar Rp. <span id="out-teks-subsiditotal">0</span><br>
+                (Perhitungan Subsidi Unaudited atau Estimasi). Gunakan BBM Subsidi secara bijak.
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
