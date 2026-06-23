@@ -139,26 +139,35 @@ function kembaliKeInput() {
     document.getElementById('halaman-input').classList.remove('hidden');
 }
 
-// 6. Mengaktifkan Fitur Web Bluetooth HP
-async function hubungkanBluetooth() {
-    try {
-        const device = await navigator.bluetooth.requestDevice({
-            filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'] }],
-            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
-        });
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-        const characteristics = await service.getCharacteristics();
-        kailPrinter = characteristics[0];
-        
-        const btn = document.getElementById('btn-bt');
-        if (btn) {
-            btn.innerText = "✅ PRINTER TERHUBUNG";
-            btn.style.backgroundColor = "#2e7d32";
-        }
-    } catch (error) {
-        alert("Koneksi Bluetooth Gagal: " + error);
-    }
+// 6. Mengaktifkan Fitur Web Bluetooth
+// Fungsi untuk memindai semua perangkat Bluetooth
+async function cariPrinter() {
+  try {
+    console.log("Memulai pencarian perangkat...");
+
+    // navigator.bluetooth.requestDevice adalah perintah utama
+    const device = await navigator.bluetooth.requestDevice({
+      // acceptAllDevices: true akan menampilkan semua perangkat yang terdeteksi
+      acceptAllDevices: true,
+      
+      // Tetap masukkan optionalServices agar setelah printer dipilih,
+      // aplikasi Anda punya izin untuk mengirim data cetak ke printer tersebut.
+      optionalServices: [
+        '00001101-0000-1000-8000-00805f9b34fb', // SPP (Standard Bluetooth Klasik)
+        '0000ffe0-0000-1000-8000-00805f9b34fb'  // Sering digunakan printer BLE
+      ]
+    });
+
+    console.log("Perangkat ditemukan: " + device.name);
+    
+    // Lanjutkan dengan proses menghubungkan ke GATT Server
+    const server = await device.gatt.connect();
+    alert("Berhasil terhubung ke: " + device.name);
+    
+  } catch (error) {
+    console.error("Gagal terhubung: " + error);
+    alert("Gagal terhubung: " + error);
+  }
 }
 
 // 7. Tombol CETAK STRUK (Mengirim teks baku ke Printer Kasir)
