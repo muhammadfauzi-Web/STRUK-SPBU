@@ -168,98 +168,82 @@ async function hubungkanBluetooth() {
     }
 }
 
-
 // Mengikat tombol printer agar menjalankan fungsi cetak saat diklik
 document.getElementById('btn-cetak-thermal').addEventListener('click', function() {
     // Panggil nama fungsi cetak struk Anda di sini, contoh:
     cetakStruk(); 
 });
 
-
-// 7. Tombol CETAK STRUK (Mengirim teks baku ke Printer Kasir)
 async function cetakStruk() {
     if (!kailPrinter) {
         alert("Printer belum terhubung! Klik Hubungkan Bluetooth terlebih dahulu.");
         return;
     }
 
-    const no_trans = document.getElementById('no_trans').value || "-";
-    const shift = document.getElementById('shift').value;
-    const pompa = document.getElementById('pompa').value;
-    const operator = (document.getElementById('operator').value || "-").toUpperCase();
-    const jenis_bbm = document.getElementById('jenis_bbm').value;
-    const vol_raw = parseFloat(document.getElementById('volume').value || 0);
-    const jumlah_raw = parseInt(document.getElementById('jumlah').value || 0);
-    const pembayaran_raw = parseInt(document.getElementById('pembayaran').value || 0);
-    
-    const km_raw = document.getElementById('kilometer').value || "-";
-    const no_plat = document.getElementById('no_plat').value || "-";
-
-    const volume_format = vol_raw.toFixed(2).replace('.', ',');
-    
-    // PERBAIKAN: Pembulatan nominal rupiah cetak printer agar sinkron dengan layar
-    const t_subsidi = Math.round(vol_raw * HARGA_NON_SUBSIDI).toLocaleString('id-ID');
-    const p_subsidi = Math.round(vol_raw * SUBSIDI_PEMERINTAH).toLocaleString('id-ID');
-    
-    const dibayar = jumlah_raw.toLocaleString('id-ID');
-    const cash = pembayaran_raw.toLocaleString('id-ID');
-    
-    const hitung_change = pembayaran_raw - jumlah_raw;
-    const change = hitung_change > 0 ? hitung_change.toLocaleString('id-ID') : "0";
-    
-    const waktu_format = dapatkanFormatWaktu();
-
-        let s = "";
-    // --- LOGO / HEADLINE (CENTERED MANUAL) ---
-    s += "           PERTAMINA\n";
-    s += "            34-41103\n";
-    s += "     SPBU RAYA KEBON KOLOT\n";
-    s += "     JL. RAYA KEBON KOLOT\n";
-    s += "\n"; // Spasi baris kosong
-    
-    s += `Shift : ${shift.padEnd(2)}   No. Trans : ${no_trans.slice(0, 7)}\n`;
-    s += `Waktu : ${waktu_format}\n`;
-    s += "--------------------------------\n";
-    s += `Pulau/Pompa      : ${pompa}\n`;
-    s += `Operator         : ${operator.slice(0, 13)}\n`;
-    s += `Jenis BBM        : ${jenis_bbm.slice(0, 13)}\n`;
-    s += `Volume           : ${volume_format} liter\n`;
-    s += "--------------------------------\n";
-    
-    s += "Informasi Harga BBM (Rp/Liter)\n";
-    s += `Harga Non Subs   : 18.040\n`;
-    s += `Subsidi Governm. :  8.040\n`;
-    s += `Harga Jual       : 10.000\n`;
-    s += "--------------------------------\n";
-    
-    s += "Total Penjualan (Rp)\n";
-    s += `Tanpa Subsidi    : ${t_subsidi.padStart(13)}\n`;
-    s += `Subsidi Govt.    : ${p_subsidi.padStart(13)}\n`;
-    s += `Dibayar Konsumen : ${dibayar.padStart(13)}\n`;
-    s += "--------------------------------\n";
-    
-    s += `CASH               ${cash.padStart(13)}\n`;
-    s += `CHANGE             ${change.padStart(13)}\n`;
-    s += "--------------------------------\n";
-    
-    s += `Kilometer        : ${km_raw}\n`;
-    s += `No. Plat         : ${no_plat.toUpperCase()}\n`;
-    s += "--------------------------------\n";
-    
-    s += "   Anda mendapat subsidi dari   \n";
-    s += ` Pemerintah sebesar Rp. ${p_subsidi.padEnd(7)} \n`;
-    s += " (Perhitungan Subsidi Unaudited \n";
-    s += "  atau Estimasi). Gunakan BBM   \n";
-    s += "     Subsidi secara bijak.      \n";
-    s += "\n\n\n\n"; 
-       
     try {
-            // Mode cadangan jika printer lama tidak mendukung perintah di atas
-            const encoder = new TextEncoder();
-            const data = encoder.encode(s);
-            await kailPrinter.writeValueWithResponse(data);
-            alert("Struk Berhasil Dikirim (Mode Cadangan)!");
-        } catch (finalError) {
-            alert("Gagal mentransfer data ke printer: " + finalError.message);
+        // Mengambil container halaman cetak kertas putih
+        const elemenStruk = document.getElementById('halaman-print'); 
+        if (!elemenStruk) {
+            alert("Elemen halaman cetak tidak ditemukan!");
+            return;
         }
-    } 
+        
+        // Memotret elemen HTML/CSS menjadi gambar canvas murni
+        const canvas = await html2canvas(elemenStruk, {
+            scale: 1, 
+            useCORS: true,
+            backgroundColor: "#ffffff"
+        });
+        
+        const ctx = canvas.getContext('2d');
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        
+        const width = canvas.width;
+        const height = canvas.height;
+        const rasterWidth = Math.ceil(width / 8);
+        
+        // Alokasi memori biner printer (ESC/POS bit image mode)
+        const bytes = new Uint8Array(8 + rasterWidth * height);
+        
+        // Perintah inisialisasi mesin printer POS grafis (GS v 0)
+        bytes[0] = 0x1D; bytes[1] = 0x76; bytes[2] = 0x30; bytes[3] = 0;
+        bytes[4] = rasterWidth & 0xFF; bytes[5] = (rasterWidth >> 8) & 0xFF;
+        bytes[6] = height & 0xFF; bytes[7] = (height >> 8) & 0xFF;
+        
+        let pos = 8;
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < rasterWidth; x++) {
+                let byte = 0;
+                for (let bit = 0; bit < 8; bit++) {
+                    const idxX = x * 8 + bit;
+                    if (idxX < width) {
+                        const idx = (y * width + idxX) * 4;
+                        const r = imgData.data[idx];
+                        const g = imgData.data[idx + 1];
+                        const b = imgData.data[idx + 2];
+                        
+                        // Menghitung tingkat kegelapan piksel
+                        const brightness = (r + g + b) / 3;
+                        if (brightness < 128) {
+                            byte |= (1 << (7 - bit)); // Menandai sebagai titik hitam di kertas
+                        }
+                    }
+                }
+                bytes[pos++] = byte;
+            }
+        }
+        
+        // Kirim data potret gambar utuh langsung tanpa dicicil
+        await kailPrinter.writeValueWithoutResponse(bytes);
+        
+        // Berikan perintah dorong kertas otomatis 4 baris agar melewati pisau potong
+        const potongKertas = new Uint8Array([0x1B, 0x64, 0x04]);
+        await kailPrinter.writeValueWithoutResponse(potongKertas);
+        
+        alert("Struk Gambar Berhasil Dicetak Sempurna!");
+        
+    } catch (error) {
+        alert("Gagal memproses potret cetak gambar: " + error.message);
+    }
+}
+
