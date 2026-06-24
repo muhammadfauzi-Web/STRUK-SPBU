@@ -48,8 +48,10 @@ body {
     background: none;
     border: none;
     color: white;
-    font-size: 22px;
+    font-size: 30px;
     cursor: pointer;
+    flex-grow: 1;
+    text-align: right;
 }
 
 /* Desain Form Input */
@@ -126,11 +128,6 @@ body {
     text-align: center;
 }
 
-.btn-bluetooth {
-    background-color: #98ffb9;
-    color: #444444;
-    border: 1px solid #cccccc;
-}
 
 .btn-submit {
     background-color: #de5454;
