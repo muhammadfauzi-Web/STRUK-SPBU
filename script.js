@@ -147,13 +147,14 @@ async function cetakStruk() {
         
         const dataGambarBase64 = canvas.toDataURL('image/png');
         const dataMurni = dataGambarBase64.split(',')[1];
-        const urlRawBT = `http://localhost:40213/print?base64=${encodeURIComponent(dataMurni)}`;
 
-        const jembatanCetak = document.createElement('a');
-        jembatanCetak.href = urlRawBT;
-        document.body.appendChild(jembatanCetak);
-        jembatanCetak.click();
-        document.body.removeChild(jembatanCetak);
+        const rawbtIntentUri = `intent:#Intent;` +
+            `action=ru.a402d.rawbtprinter.action.PRINT;` +
+            `type=image/png;` +
+            `S.base64=${encodeURIComponent(dataMurni)};` +
+            `end`;
+
+        window.location.href = rawbtIntentUri;
 
     } catch (error) {
         alert("Terjadi kegagalan sistem cetak: " + error.message);
