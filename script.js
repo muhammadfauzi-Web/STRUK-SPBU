@@ -209,47 +209,58 @@ async function cetakStruk() {
     
     const waktu_format = dapatkanFormatWaktu();
 
-    let s = "";
-    s += "           34-41103\n";
+        let s = "";
+    // --- LOGO / HEADLINE (CENTERED MANUAL) ---
+    s += "           PERTAMINA\n";
+    s += "            34-41103\n";
     s += "     SPBU RAYA KEBON KOLOT\n";
     s += "     JL. RAYA KEBON KOLOT\n";
-    s += `Shift : ${shift}         No. Trans : ${no_trans}\n`;
+    s += "\n"; // Spasi baris kosong
+    
+    s += `Shift : ${shift.padEnd(2)}   No. Trans : ${no_trans.slice(0, 7)}\n`;
     s += `Waktu : ${waktu_format}\n`;
     s += "--------------------------------\n";
-    s += `Pulau/Pompa   : ${pompa}\n`;
-    s += `Operator      : ${operator}\n`;
-    s += `Jenis BBM     : ${jenis_bbm}\n`;
-    s += `Volume        : ${volume_format} liter\n`;
+    s += `Pulau/Pompa      : ${pompa}\n`;
+    s += `Operator         : ${operator.slice(0, 13)}\n`;
+    s += `Jenis BBM        : ${jenis_bbm.slice(0, 13)}\n`;
+    s += `Volume           : ${volume_format} liter\n`;
     s += "--------------------------------\n";
+    
     s += "Informasi Harga BBM (Rp/Liter)\n";
-    s += "Harga Non     :   18.040\nSubsidi\n";
-    s += "Subsidi       :    8.040\nPemerintah\n";
-    s += "Harga Jual    :   10.000\n";
+    s += `Harga Non Subs   : 18.040\n`;
+    s += `Subsidi Governm. :  8.040\n`;
+    s += `Harga Jual       : 10.000\n`;
     s += "--------------------------------\n";
+    
     s += "Total Penjualan (Rp)\n";
-    s += `Tanpa Subsidi :   ${t_subsidi}\n`;
-    s += `Subsidi       :   ${p_subsidi}\nPemerintah\n`;
-    s += `Dibayar       :   ${dibayar}\nKonsumen\n`;
+    s += `Tanpa Subsidi    : ${t_subsidi.padStart(13)}\n`;
+    s += `Subsidi Govt.    : ${p_subsidi.padStart(13)}\n`;
+    s += `Dibayar Konsumen : ${dibayar.padStart(13)}\n`;
     s += "--------------------------------\n";
-    s += "CASH\n";
-    s += `                      ${cash}\n`;
-    s += "CHANGE\n";
-    s += `                      ${change}\n`;
+    
+    s += `CASH               ${cash.padStart(13)}\n`;
+    s += `CHANGE             ${change.padStart(13)}\n`;
     s += "--------------------------------\n";
-    s += `Kilometer     : ${km_raw}\n`;
-    s += `No. Plat      : ${no_plat.toUpperCase()}\n`;
+    
+    s += `Kilometer        : ${km_raw}\n`;
+    s += `No. Plat         : ${no_plat.toUpperCase()}\n`;
     s += "--------------------------------\n";
+    
     s += "   Anda mendapat subsidi dari   \n";
-    s += ` Pemerintah sebesar Rp. ${p_subsidi} \n`;
+    s += ` Pemerintah sebesar Rp. ${p_subsidi.padEnd(7)} \n`;
     s += " (Perhitungan Subsidi Unaudited \n";
     s += "  atau Estimasi). Gunakan BBM   \n";
-    s += "     Subsidi secara bijak.      \n\n\n\n";
-
-    const encoder = new TextEncoder('utf-8');
-    const data = encoder.encode(s);
-    const chunkSize = 20;
-    
-    for (let i = 0; i < data.length; i += chunkSize) {
-        await kailPrinter.writeValue(data.slice(i, i + chunkSize));
+    s += "     Subsidi secara bijak.      \n";
+    s += "\n\n\n\n"; 
+       
+    try {
+            // Mode cadangan jika printer lama tidak mendukung perintah di atas
+            const encoder = new TextEncoder();
+            const data = encoder.encode(s);
+            await kailPrinter.writeValueWithResponse(data);
+            alert("Struk Berhasil Dikirim (Mode Cadangan)!");
+        } catch (finalError) {
+            alert("Gagal mentransfer data ke printer: " + finalError.message);
+        }
     }
-}
+} 
