@@ -1,10 +1,8 @@
-// Konfigurasi Parameter SPBU
 let kailPrinter = null;
 const HARGA_JUAL = 10000;
 const HARGA_NON_SUBSIDI = 18040;
 const SUBSIDI_PEMERINTAH = 8040;
 
-// 1. Inisialisasi Utama Saat Aplikasi Dibuka
 document.addEventListener("DOMContentLoaded", () => {
     const inputJumlah = document.getElementById('jumlah');
     const inputPembayaran = document.getElementById('pembayaran');
@@ -18,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnSimpan) btnSimpan.addEventListener('click', prosesSimpan);
     if (btnKembali) btnKembali.addEventListener('click', kembaliKeInput);
     
-    // Otomatisasi Mengisi Tanggal & Jam Sekarang (Bisa Diedit)
     const inputWaktu = document.getElementById('waktu');
     if (inputWaktu) {
         const sekarang = new Date();
@@ -32,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// 2. Fungsi Hitung Volume Otomatis & Set Awal Pembayaran
 function hitungVolume() {
     const jumlah = document.getElementById('jumlah').value;
     const volumeField = document.getElementById('volume');
@@ -48,7 +44,6 @@ function hitungVolume() {
     hitungKembalian(); 
 }
 
-// Fungsi Kalkulasi Kembalian Dinamis
 function hitungKembalian() {
     const jumlah = parseInt(document.getElementById('jumlah').value || 0);
     const pembayaran = parseInt(document.getElementById('pembayaran').value || 0);
@@ -64,7 +59,6 @@ function hitungKembalian() {
     }
 }
 
-// 3. Fungsi Format Tanggal agar Ramah Tampilan Kasir
 function dapatkanFormatWaktu() {
     const waktuRaw = document.getElementById('waktu').value;
     if (!waktuRaw) return "-";
@@ -77,7 +71,6 @@ function dapatkanFormatWaktu() {
     }
 }
 
-// 4. Tombol SIMPAN (Membuat Pratinjau Struk di Layar HP)
 function prosesSimpan() {
     const no_trans = document.getElementById('no_trans').value || "-";
     const shift = document.getElementById('shift').value;
@@ -93,7 +86,6 @@ function prosesSimpan() {
 
     const volume_format = vol_raw.toFixed(2).replace('.', ',');
     
-    // PERBAIKAN: Menggunakan Math.round() untuk membulatkan nominal rupiah tanpa desimal koma
     const t_subsidi = Math.round(vol_raw * HARGA_NON_SUBSIDI).toLocaleString('id-ID');
     const p_subsidi = Math.round(vol_raw * SUBSIDI_PEMERINTAH).toLocaleString('id-ID');
     
@@ -105,7 +97,6 @@ function prosesSimpan() {
     
     const waktu_format = dapatkanFormatWaktu();
 
-    // Kirim Teks data ke Elemen HTML Struk Layar
     if(document.getElementById('out-notrans')) document.getElementById('out-notrans').innerText = no_trans;
     if(document.getElementById('out-shift')) document.getElementById('out-shift').innerText = shift;
     if(document.getElementById('out-waktu')) document.getElementById('out-waktu').innerText = waktu_format;
@@ -130,48 +121,41 @@ function prosesSimpan() {
     window.scrollTo(0, 0);
 }
 
-// 5. Tombol KEMBALI
 function kembaliKeInput() {
     document.getElementById('halaman-print').classList.add('hidden');
     document.getElementById('halaman-input').classList.remove('hidden');
 }
-// =========================================================================
-// 7. TOMBOL CETAK STRUK (Jembatan Otomatis Langsung Terbuka ke RawBT)
-// =========================================================================
+
 async function cetakStruk() {
     try {
-        // Mengambil elemen kertas struk putih murni
+        if (typeof html2canvas === 'undefined') {
+            alert("Error: html2canvas tidak dimuat!");
+            return;
+        }
+
         const elemenStruk = document.querySelector('.struk-paper'); 
         if (!elemenStruk) {
             alert("Elemen struk-paper tidak ditemukan!");
             return;
         }
         
-        // Memotret area putih .struk-paper menjadi gambar canvas
         const canvas = await html2canvas(elemenStruk, {
-            scale: 2, // Agar gambar struk tajam saat dicetak printer thermal
+            scale: 2, 
             useCORS: true,
             backgroundColor: "#ffffff"
         });
         
-        // Mengubah hasil foto canvas menjadi format teks Base64 DataURL
         const dataGambarBase64 = canvas.toDataURL('image/png');
-        
-        // Memisahkan header Base64 untuk mengambil teks biner murninya saja
         const dataMurni = dataGambarBase64.split(',')[1];
+        const urlRawBT = `http://localhost:40213/print?base64=${encodeURIComponent(dataMurni)}`;
 
-        // MEMBUAT JEMBATAN INTENT LINK RAWBT
-        // Trik ini memaksa Android langsung melempar data gambar ke aplikasi RawBT secara otomatis
-        const rawbtIntentUri = `intent:#Intent;` +
-            `action=ru.a402d.rawbtprinter.action.PRINT;` +
-            `type=image/png;` +
-            `S.base64=${encodeURIComponent(dataMurni)};` +
-            `end`;
-
-        // Jalankan perintah membuka aplikasi RawBT secara otomatis
-        window.location.href = rawbtIntentUri;
+        const jembatanCetak = document.createElement('a');
+        jembatanCetak.href = urlRawBT;
+        document.body.appendChild(jembatanCetak);
+        jembatanCetak.click();
+        document.body.removeChild(jembatanCetak);
 
     } catch (error) {
-        alert("Gagal memproses jembatan cetak gambar RawBT: " + error.message);
+        alert("Terjadi kegagalan sistem cetak: " + error.message);
     }
 }
