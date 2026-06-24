@@ -169,6 +169,13 @@ async function hubungkanBluetooth() {
 }
 
 
+// Mengikat tombol printer agar menjalankan fungsi cetak saat diklik
+document.getElementById('btn-cetak-thermal').addEventListener('click', function() {
+    // Panggil nama fungsi cetak struk Anda di sini, contoh:
+    cetakStruk(); 
+});
+
+
 // 7. Tombol CETAK STRUK (Mengirim teks baku ke Printer Kasir)
 async function cetakStruk() {
     if (!kailPrinter) {
