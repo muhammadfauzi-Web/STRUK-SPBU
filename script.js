@@ -10,17 +10,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputPembayaran = document.getElementById('pembayaran');
     const btnSimpan = document.getElementById('btn-simpan');
     const btnKembali = document.getElementById('btn-kembali');
-    const btnBluetooth = document.getElementById('btn-bt');
     const btnCetakThermal = document.getElementById('btn-cetak-thermal');
 
+    if (btnCetakThermal) btnCetakThermal.addEventListener('click', cetakStruk);
     if (inputJumlah) inputJumlah.addEventListener('input', hitungVolume);
     if (inputPembayaran) inputPembayaran.addEventListener('input', hitungKembalian);
-    
     if (btnSimpan) btnSimpan.addEventListener('click', prosesSimpan);
     if (btnKembali) btnKembali.addEventListener('click', kembaliKeInput);
-    if (btnBluetooth) btnBluetooth.addEventListener('click', hubungkanBluetooth);
-    if (btnCetakThermal) btnCetakThermal.addEventListener('click', cetakStruk);
-
+    
     // Otomatisasi Mengisi Tanggal & Jam Sekarang (Bisa Diedit)
     const inputWaktu = document.getElementById('waktu');
     if (inputWaktu) {
@@ -138,112 +135,43 @@ function kembaliKeInput() {
     document.getElementById('halaman-print').classList.add('hidden');
     document.getElementById('halaman-input').classList.remove('hidden');
 }
-
-// 6. Mengaktifkan Fitur Web Bluetooth
-// Fungsi untuk memindai semua perangkat Bluetooth
-async function hubungkanBluetooth() {
-    try {
-        // Mengubah filter agar menampilkan semua perangkat Bluetooth tanpa batasan
-        const device = await navigator.bluetooth.requestDevice({
-            acceptAllDevices: true,
-            // Memasukkan UUID printer Anda sebelumnya ke optionalServices agar tetap diizinkan mengirim data cetak
-            optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
-        });
-        
-        const server = await device.gatt.connect();
-        
-        // Tetap menggunakan UUID printer Anda untuk mengambil service cetak data
-        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-        const characteristics = await service.getCharacteristics();
-        kailPrinter = characteristics[0];
-        
-        // Mengubah tampilan tombol lama Anda saat berhasil terhubung
-        const btn = document.getElementById('btn-bt');
-        if (btn) {
-            btn.innerText = "✅ PRINTER TERHUBUNG";
-            btn.style.backgroundColor = "#2e7d32";
-        }
-    } catch (error) {
-        alert("Koneksi Bluetooth Gagal: " + error);
-    }
-}
-
-// Mengikat tombol printer agar menjalankan fungsi cetak saat diklik
-document.getElementById('btn-cetak-thermal').addEventListener('click', function() {
-    // Panggil nama fungsi cetak struk Anda di sini, contoh:
-    cetakStruk(); 
-});
-
+// =========================================================================
+// 7. TOMBOL CETAK STRUK (Jembatan Otomatis Langsung Terbuka ke RawBT)
+// =========================================================================
 async function cetakStruk() {
-    if (!kailPrinter) {
-        alert("Printer belum terhubung! Klik Hubungkan Bluetooth terlebih dahulu.");
-        return;
-    }
-
     try {
-        // Mengambil container halaman cetak kertas putih
-        const elemenStruk = document.getElementById('halaman-print'); 
+        // Mengambil elemen kertas struk putih murni
+        const elemenStruk = document.querySelector('.struk-paper'); 
         if (!elemenStruk) {
-            alert("Elemen halaman cetak tidak ditemukan!");
+            alert("Elemen struk-paper tidak ditemukan!");
             return;
         }
         
-        // Memotret elemen HTML/CSS menjadi gambar canvas murni
+        // Memotret area putih .struk-paper menjadi gambar canvas
         const canvas = await html2canvas(elemenStruk, {
-            scale: 1, 
+            scale: 2, // Agar gambar struk tajam saat dicetak printer thermal
             useCORS: true,
             backgroundColor: "#ffffff"
         });
         
-        const ctx = canvas.getContext('2d');
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        // Mengubah hasil foto canvas menjadi format teks Base64 DataURL
+        const dataGambarBase64 = canvas.toDataURL('image/png');
         
-        const width = canvas.width;
-        const height = canvas.height;
-        const rasterWidth = Math.ceil(width / 8);
-        
-        // Alokasi memori biner printer (ESC/POS bit image mode)
-        const bytes = new Uint8Array(8 + rasterWidth * height);
-        
-        // Perintah inisialisasi mesin printer POS grafis (GS v 0)
-        bytes[0] = 0x1D; bytes[1] = 0x76; bytes[2] = 0x30; bytes[3] = 0;
-        bytes[4] = rasterWidth & 0xFF; bytes[5] = (rasterWidth >> 8) & 0xFF;
-        bytes[6] = height & 0xFF; bytes[7] = (height >> 8) & 0xFF;
-        
-        let pos = 8;
-        for (let y = 0; y < height; y++) {
-            for (let x = 0; x < rasterWidth; x++) {
-                let byte = 0;
-                for (let bit = 0; bit < 8; bit++) {
-                    const idxX = x * 8 + bit;
-                    if (idxX < width) {
-                        const idx = (y * width + idxX) * 4;
-                        const r = imgData.data[idx];
-                        const g = imgData.data[idx + 1];
-                        const b = imgData.data[idx + 2];
-                        
-                        // Menghitung tingkat kegelapan piksel
-                        const brightness = (r + g + b) / 3;
-                        if (brightness < 128) {
-                            byte |= (1 << (7 - bit)); // Menandai sebagai titik hitam di kertas
-                        }
-                    }
-                }
-                bytes[pos++] = byte;
-            }
-        }
-        
-        // Kirim data potret gambar utuh langsung tanpa dicicil
-        await kailPrinter.writeValueWithoutResponse(bytes);
-        
-        // Berikan perintah dorong kertas otomatis 4 baris agar melewati pisau potong
-        const potongKertas = new Uint8Array([0x1B, 0x64, 0x04]);
-        await kailPrinter.writeValueWithoutResponse(potongKertas);
-        
-        alert("Struk Gambar Berhasil Dicetak Sempurna!");
-        
+        // Memisahkan header Base64 untuk mengambil teks biner murninya saja
+        const dataMurni = dataGambarBase64.split(',')[1];
+
+        // MEMBUAT JEMBATAN INTENT LINK RAWBT
+        // Trik ini memaksa Android langsung melempar data gambar ke aplikasi RawBT secara otomatis
+        const rawbtIntentUri = `intent:#Intent;` +
+            `action=ru.a402d.rawbtprinter.action.PRINT;` +
+            `type=image/png;` +
+            `S.base64=${encodeURIComponent(dataMurni)};` +
+            `end`;
+
+        // Jalankan perintah membuka aplikasi RawBT secara otomatis
+        window.location.href = rawbtIntentUri;
+
     } catch (error) {
-        alert("Gagal memproses potret cetak gambar: " + error.message);
+        alert("Gagal memproses jembatan cetak gambar RawBT: " + error.message);
     }
 }
-
