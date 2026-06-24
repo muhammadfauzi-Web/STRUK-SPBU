@@ -262,5 +262,4 @@ async function cetakStruk() {
         } catch (finalError) {
             alert("Gagal mentransfer data ke printer: " + finalError.message);
         }
-    }
-} 
+    } 
