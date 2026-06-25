@@ -4,6 +4,13 @@ Aplikasi kasir berbasis web (*web-based tool*) yang dirancang khusus untuk mempe
 
 ---
 
+## 🔗 Link Demo Aplikasi
+
+Buka dan coba langsung aplikasinya di sini:
+👉 **[Buka Website Struk SPBU](https://muhammadfauzi-web.github.io)**
+
+---
+
 ## 👨‍💻 Kreator / Pengembang
 
 * **Muhammad Fauzi** (Developer Utama & Creator)
@@ -30,7 +37,7 @@ Aplikasi kasir berbasis web (*web-based tool*) yang dirancang khusus untuk mempe
    * **Shift** & **Pulau/Pompa**
    * **Nama Operator**
    * **Jenis BBM** (Misal: Pertalite)
-3. Masukkan nominal uang pada kolom **Jumlah**. Sistem akan otomatis mengisi estimasi **Volume** liter dan kolom **Pembayaran**.
+3. Masukkan nominal uang pada kolom **Jumlah**. Sistem akan otomatis mengisi opsi **Volume** liter dan kolom **Pembayaran**.
 4. Jika konsumen membayar dengan uang pas, biarkan kolom pembayaran tetap. Jika tidak, sesuaikan isi kolom **Pembayaran** untuk melihat nominal kembalian.
 5. Lengkapi data **Kilometer** dan **No. Plat** kendaraan jika diperlukan.
 
@@ -58,4 +65,4 @@ Aplikasi ini dibangun menggunakan arsitektur web standar tanpa *framework* berat
 ---
 
 ## ⚠️ Catatan Penting Pengujian
-Agar fitur tombol **PRINT** dapat berjalan dengan lancar tanpa kendala pemblokiran keamanan sistem, **pastikan website dibuka menggunakan aplikasi Google Chrome resmi**, bukan melalui browser internal/WebView bawaan aplikasi editor teks.
+Fitur tombol **PRINT** wajib dibuka langsung menggunakan **aplikasi Google Chrome resmi** di HP agar sistem Android dapat memproses fungsi berbagi gambar secara lancar tanpa kendala keamanan.
