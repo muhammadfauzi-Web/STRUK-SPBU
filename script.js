@@ -140,9 +140,20 @@ async function cetakStruk() {
         }
         
         const canvas = await html2canvas(elemenStruk, {
-            scale: 2, 
+            scale: 3, 
             useCORS: true,
-            backgroundColor: "#ffffff"
+            backgroundColor: "#ffffff",
+            logging: false,
+            imageTimeout: 0,
+            onclone: (dokumenKloning) => {
+                const elemenKloning = dokumenKloning.querySelector('.struk-paper');
+                if (elemenKloning) {
+                    elemenKloning.style.fontSmoothing = "antialiased";
+                    elemenKloning.style.webkitFontSmoothing = "antialiased";
+                    elemenKloning.style.mozOsxFontSmoothing = "grayscale";
+                    elemenKloning.style.textRendering = "optimizeLegibility";
+                }
+            }
         });
         
         canvas.toBlob(async (blob) => {
@@ -155,12 +166,10 @@ async function cetakStruk() {
             if (navigator.canShare && navigator.canShare(dataShare)) {
                 try {
                     await navigator.share(dataShare);
-                    console.log("Berhasil mengirim gambar ke aplikasi Bluetooth.");
                 } catch (shareError) {
-                    console.log("User membatalkan share atau terjadi kendala: ", shareError);
+                    console.log("User membatalkan atau kendala share: ", shareError);
                 }
             } else {
-                console.log("Web Share API tidak didukung, menggunakan jalur Intent RawBT...");
                 const dataGambarBase64 = canvas.toDataURL('image/png');
                 const dataMurni = dataGambarBase64.split(',')[1];
                 
