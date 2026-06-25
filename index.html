@@ -54,11 +54,10 @@
 
             <div class="input-group">
                 <select id="jenis_bbm">
-                    <option value="PERTALITE">Pertalite</option>
-                    <option value="PERTAMAX">Pertamax</option>
-                    <option value="SOLAR">Biosolar</option>
+                    <option value="PERTALITE">PERTALITE 10.000/Liter</option>
+                    <option value="PERTAMAX">PERTAMAX 16.250/Liter</option>
                 </select>
-                <div style="position: absolute; right: 12px; top: 10px; font-size: 13px; color: #666;">10.000 / Liter</div>
+                
             </div>
 
             <div class="form-row">
@@ -131,26 +130,26 @@
 
             <div class="struk-line">-------------------------------------</div>
             <div>Informasi Harga BBM (Rp/Liter)</div>
-            <div class="struk-row-split">
+            <div class="struk-row-split baris-subsidi">
                 <span>Harga Non Subsidi</span>
                 <span>: 18.040</span>
             </div>
-            <div class="struk-row-split">
+            <div class="struk-row-split baris-subsidi">
                 <span>Subsidi Pemerintah</span>
                 <span>: 8.040</span>
             </div>
             <div class="struk-row-split">
                 <span>Harga Jual</span>
-                <span>: 10.000</span>
+                <span id="out-hargajual">: 10.000</span>
             </div>
 
             <div class="struk-line">-------------------------------------</div>
             <div>Total Penjualan (Rp)</div>
-            <div class="struk-row-split">
+            <div class="struk-row-split baris-subsidi">
                 <span>Tanpa Subsidi</span>
                 <span id="out-tanpasubsidi">: -</span>
             </div>
-            <div class="struk-row-split">
+            <div class="struk-row-split baris-subsidi">
                 <span>Subsidi Pemerintah</span>
                 <span id="out-totalsubsidi">: -</span>
             </div>
@@ -182,7 +181,7 @@
 
             <div class="struk-line">-------------------------------------</div>
 
-            <div style="text-align: center; margin-top: 10px; font-size: 11px; width: 100%;">
+            <div class="baris-subsidi" style="text-align: center; margin-top: 10px; font-size: 11px; width: 100%;">
                 Anda mendapat subsidi dari<br>
                 Pemerintah sebesar Rp. <span id="out-teks-subsiditotal">0</span><br>
                 (Perhitungan Subsidi Unaudited atau Estimasi). Gunakan BBM Subsidi secara bijak.
