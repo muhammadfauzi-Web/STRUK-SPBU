@@ -147,12 +147,12 @@ body {
 /* 1. Menyesuaikan Kertas Simulasi & Ukuran Teks Utama agar Padat */
 .struk-paper {
     width: 100%;
-    max-width: 350px;          /* Sedikit diperkecil agar teks merapat ke tengah */
+    max-width: 400px;          /* Sedikit diperkecil agar teks merapat ke tengah */
     margin: 0 auto;
-    padding: 10px;       /* Merapatkan jarak tepi kertas */
+    padding: 5px;       /* Merapatkan jarak tepi kertas */
     box-sizing: border-box;
     font-family: monospace;
-    font-size: 15px;           /* Ukuran font kasir standar */
+    font-size: 17px;           /* Ukuran font kasir standar */
     line-height: 1.50;          /* Merapatkan jarak spasi antar baris atas-bawah */
     background-color: #ffffff;
     color: #000;
@@ -168,11 +168,12 @@ body {
 /* DIUBAH: Mengecilkan lebar lajur kiri agar label rapat dan titik dua (:) geser ke kiri */
 .struk-row-split > span:first-child,
 .struk-row-split > div:first-child {
-    width: 175px;               /* Diturunkan ke 95px agar teks label kiri sangat rapat */
+    width: 185px;               /* Diturunkan ke 95px agar teks label kiri sangat rapat */
     display: inline-block;
     flex-shrink: 0;
     text-align: left;
 }
+
 
 /* Mengatur teks nilai di sebelah kanan setelah titik dua */
 .struk-row-split > span:last-child {
@@ -186,12 +187,6 @@ body {
     justify-content: space-between; 
 }
 
-#out-cash, #out-change {
-    text-align: right !important;
-    flex: 1;
-}
-
-
 
 
 /* Garis Pembatas Putus-putus */
@@ -203,7 +198,3 @@ body {
     white-space: nowrap;
 }
 
-/* Ukuran Font Khusus Struk */
-.font-large {
-    font-size: 15px;
-}
