@@ -131,7 +131,7 @@ function prosesSimpan() {
         
     } else {
         // MODE PERTALITE: Munculkan elemen subsidi & hitung matematika subsidi
-        elemenSubsidi.forEach(el => el.style.display = 'block'); // atau '' sesuai CSS asli Anda
+        elemenSubsidi.forEach(el => el.style.display = ''); // atau '' sesuai CSS asli Anda
         if(document.getElementById('out-hargajual')) document.getElementById('out-hargajual').innerText = ": 10.000/liter";
         
         const t_subsidi = Math.round(vol_raw * HARGA_NON_SUBSIDI_PERTALITE).toLocaleString('id-ID');
