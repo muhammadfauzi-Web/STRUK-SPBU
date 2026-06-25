@@ -114,8 +114,8 @@ function prosesSimpan() {
     if(document.getElementById('out-bbm')) document.getElementById('out-bbm').innerText = ": " + jenis_bbm;
     if(document.getElementById('out-volume')) document.getElementById('out-volume').innerText = ": " + volume_format + " liter";
     if(document.getElementById('out-dibayar')) document.getElementById('out-dibayar').innerText = ": " + dibayar;
-    if(document.getElementById('out-cash')) document.getElementById('out-cash').innerText = ": " + cash;
-    if(document.getElementById('out-change')) document.getElementById('out-change').innerText = ": " + change;
+    if(document.getElementById('out-cash')) document.getElementById('out-cash').innerText = " " + cash;
+    if(document.getElementById('out-change')) document.getElementById('out-change').innerText = " " + change;
     if(document.getElementById('out-kilometer')) document.getElementById('out-kilometer').innerText = ": " + km_raw;
     if(document.getElementById('out-plat')) document.getElementById('out-plat').innerText = ": " + no_plat.toUpperCase();
 
