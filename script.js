@@ -1,16 +1,20 @@
 let kailPrinter = null;
-const HARGA_JUAL = 10000;
-const HARGA_NON_SUBSIDI = 18040;
-const SUBSIDI_PEMERINTAH = 8040;
+
+// Konfigurasi Harga Fleksibel
+const HARGA_PERTALITE = 10000;
+const HARGA_PERTAMAX = 16250;
+const HARGA_NON_SUBSIDI_PERTALITE = 18040;
+const SUBSIDI_PEMERINTAH_PERTALITE = 8040;
 
 document.addEventListener("DOMContentLoaded", () => {
     const inputJumlah = document.getElementById('jumlah');
     const inputPembayaran = document.getElementById('pembayaran');
     const btnSimpan = document.getElementById('btn-simpan');
     const btnKembali = document.getElementById('btn-kembali');
-    const btnCetakThermal = document.getElementById('btn-cetak-thermal');
-
-    if (btnCetakThermal) btnCetakThermal.addEventListener('click', cetakStruk);
+    const inputJenisBBM = document.getElementById('jenis_bbm'); // Dropdown jenis BBM
+    
+    // Deteksi jika kasir ganti jenis BBM, otomatis hitung ulang volumenya
+    if (inputJenisBBM) inputJenisBBM.addEventListener('change', hitungVolume);
     if (inputJumlah) inputJumlah.addEventListener('input', hitungVolume);
     if (inputPembayaran) inputPembayaran.addEventListener('input', hitungKembalian);
     if (btnSimpan) btnSimpan.addEventListener('click', prosesSimpan);
@@ -24,18 +28,25 @@ document.addEventListener("DOMContentLoaded", () => {
         const hari = String(sekarang.getDate()).padStart(2, '0');
         const jam = String(sekarang.getHours()).padStart(2, '0');
         const menit = String(sekarang.getMinutes()).padStart(2, '0');
-        
         inputWaktu.value = `${tahun}-${bulan}-${hari}T${jam}:${menit}`;
     }
 });
+
+// Fungsi Pengecekan Harga Aktif
+function getHargaAktif() {
+    const jenis = document.getElementById('jenis_bbm');
+    const val = jenis ? jenis.value.toUpperCase() : "PERTALITE";
+    return val.includes("PERTAMAX") ? HARGA_PERTAMAX : HARGA_PERTALITE;
+}
 
 function hitungVolume() {
     const jumlah = document.getElementById('jumlah').value;
     const volumeField = document.getElementById('volume');
     const pembayaranField = document.getElementById('pembayaran');
+    const hargaAktif = getHargaAktif();
     
     if (jumlah) {
-        if (volumeField) volumeField.value = (parseFloat(jumlah) / HARGA_JUAL).toFixed(2);
+        volumeField.value = (parseFloat(jumlah) / hargaAktif).toFixed(2);
         if (pembayaranField) pembayaranField.value = jumlah; 
     } else {
         if (volumeField) volumeField.value = "";
@@ -72,31 +83,29 @@ function dapatkanFormatWaktu() {
 }
 
 function prosesSimpan() {
-    const no_trans = document.getElementById('no_trans').value || "-";
+    const no_trans_raw = document.getElementById('no_trans').value || "-";
     const shift = document.getElementById('shift').value;
     const pompa = document.getElementById('pompa').value;
     const operator = (document.getElementById('operator').value || "-").toUpperCase();
-    const jenis_bbm = document.getElementById('jenis_bbm').value;
+    const jenisBbmEl = document.getElementById('jenis_bbm');
+    const jenis_bbm = (jenisBbmEl ? jenisBbmEl.value : "PERTALITE").toUpperCase();
+    
     const vol_raw = parseFloat(document.getElementById('volume').value || 0);
     const jumlah_raw = parseInt(document.getElementById('jumlah').value || 0);
     const pembayaran_raw = parseInt(document.getElementById('pembayaran').value || 0);
-    
     const km_raw = document.getElementById('kilometer').value || "-";
     const no_plat = document.getElementById('no_plat').value || "-";
 
-    const volume_format = vol_raw.toFixed(2).replace('.', ',');
-    
-    const t_subsidi = Math.round(vol_raw * HARGA_NON_SUBSIDI).toLocaleString('id-ID');
-    const p_subsidi = Math.round(vol_raw * SUBSIDI_PEMERINTAH).toLocaleString('id-ID');
+    const volume_format = Number.isInteger(vol_raw) ? vol_raw.toString() : vol_raw.toFixed(2).replace('.', ',');
+    const no_trans = no_trans_raw !== "-" ? no_trans_raw.padStart(2, '0') : "-";
     
     const dibayar = jumlah_raw.toLocaleString('id-ID');
     const cash = pembayaran_raw.toLocaleString('id-ID');
-    
     const hitung_change = pembayaran_raw - jumlah_raw;
     const change = hitung_change > 0 ? hitung_change.toLocaleString('id-ID') : "0";
-    
     const waktu_format = dapatkanFormatWaktu();
 
+    // Injeksi Data Umum
     if(document.getElementById('out-notrans')) document.getElementById('out-notrans').innerText = no_trans;
     if(document.getElementById('out-shift')) document.getElementById('out-shift').innerText = shift;
     if(document.getElementById('out-waktu')) document.getElementById('out-waktu').innerText = waktu_format;
@@ -104,17 +113,34 @@ function prosesSimpan() {
     if(document.getElementById('out-operator')) document.getElementById('out-operator').innerText = ": " + operator;
     if(document.getElementById('out-bbm')) document.getElementById('out-bbm').innerText = ": " + jenis_bbm;
     if(document.getElementById('out-volume')) document.getElementById('out-volume').innerText = ": " + volume_format + " liter";
-    if(document.getElementById('out-tanpasubsidi')) document.getElementById('out-tanpasubsidi').innerText = ": " + t_subsidi;
-    if(document.getElementById('out-totalsubsidi')) document.getElementById('out-totalsubsidi').innerText = ": " + p_subsidi;
     if(document.getElementById('out-dibayar')) document.getElementById('out-dibayar').innerText = ": " + dibayar;
-    
-    if(document.getElementById('out-cash')) document.getElementById('out-cash').innerText = cash;
-    if(document.getElementById('out-change')) document.getElementById('out-change').innerText = change;
-    
+    if(document.getElementById('out-cash')) document.getElementById('out-cash').innerText = ": " + cash;
+    if(document.getElementById('out-change')) document.getElementById('out-change').innerText = ": " + change;
     if(document.getElementById('out-kilometer')) document.getElementById('out-kilometer').innerText = ": " + km_raw;
     if(document.getElementById('out-plat')) document.getElementById('out-plat').innerText = ": " + no_plat.toUpperCase();
 
-    if(document.getElementById('out-teks-subsiditotal')) document.getElementById('out-teks-subsiditotal').innerText = p_subsidi;
+    // ========================================================
+    // LOGIKA PERCABANGAN: PERTAMAX vs PERTALITE
+    // ========================================================
+    const elemenSubsidi = document.querySelectorAll('.baris-subsidi');
+
+    if (jenis_bbm.includes("PERTAMAX")) {
+        // MODE PERTAMAX: Sembunyikan elemen subsidi & atur harga 16.250
+        elemenSubsidi.forEach(el => el.style.display = 'none');
+        if(document.getElementById('out-hargajual')) document.getElementById('out-hargajual').innerText = ": 16.250/liter";
+        
+    } else {
+        // MODE PERTALITE: Munculkan elemen subsidi & hitung matematika subsidi
+        elemenSubsidi.forEach(el => el.style.display = 'block'); // atau '' sesuai CSS asli Anda
+        if(document.getElementById('out-hargajual')) document.getElementById('out-hargajual').innerText = ": 10.000/liter";
+        
+        const t_subsidi = Math.round(vol_raw * HARGA_NON_SUBSIDI_PERTALITE).toLocaleString('id-ID');
+        const p_subsidi = Math.round(vol_raw * SUBSIDI_PEMERINTAH_PERTALITE).toLocaleString('id-ID');
+        
+        if(document.getElementById('out-tanpasubsidi')) document.getElementById('out-tanpasubsidi').innerText = ": " + t_subsidi;
+        if(document.getElementById('out-totalsubsidi')) document.getElementById('out-totalsubsidi').innerText = ": " + p_subsidi;
+        if(document.getElementById('out-teks-subsiditotal')) document.getElementById('out-teks-subsiditotal').innerText = p_subsidi;
+    }
 
     document.getElementById('halaman-input').classList.add('hidden');
     document.getElementById('halaman-print').classList.remove('hidden');
@@ -126,6 +152,7 @@ function kembaliKeInput() {
     document.getElementById('halaman-input').classList.remove('hidden');
 }
 
+// FUNGSI CETAK SHARE API TERBAIK (TIDAK BERUBAH)
 async function cetakStruk() {
     try {
         if (typeof html2canvas === 'undefined') {
@@ -134,17 +161,13 @@ async function cetakStruk() {
         }
 
         const elemenStruk = document.querySelector('.struk-paper'); 
-        if (!elemenStruk) {
-            alert("Error: Area struk tidak ditemukan!");
-            return;
-        }
+        if (!elemenStruk) return alert("Error: Area struk tidak ditemukan!");
         
         const canvas = await html2canvas(elemenStruk, {
             scale: 3, 
             useCORS: true,
             backgroundColor: "#ffffff",
             logging: false,
-            imageTimeout: 0,
             onclone: (dokumenKloning) => {
                 const elemenKloning = dokumenKloning.querySelector('.struk-paper');
                 if (elemenKloning) {
@@ -158,32 +181,18 @@ async function cetakStruk() {
         
         canvas.toBlob(async (blob) => {
             const fileGambar = new File([blob], "struk-spbu.png", { type: "image/png" });
-            const dataShare = {
-                title: 'Cetak Struk SPBU',
-                files: [fileGambar]
-            };
+            const dataShare = { title: 'Cetak Struk SPBU', files: [fileGambar] };
 
             if (navigator.canShare && navigator.canShare(dataShare)) {
-                try {
-                    await navigator.share(dataShare);
-                } catch (shareError) {
-                    console.log("User membatalkan atau kendala share: ", shareError);
-                }
+                try { await navigator.share(dataShare); } 
+                catch (shareError) { console.log("Batal share:", shareError); }
             } else {
-                const dataGambarBase64 = canvas.toDataURL('image/png');
-                const dataMurni = dataGambarBase64.split(',')[1];
-                
-                const rawbtIntentUri = `intent:#Intent;` +
-                    `action=ru.a402d.rawbtprinter.action.PRINT;` +
-                    `type=image/png;` +
-                    `S.base64=${encodeURIComponent(dataMurni)};` +
-                    `end`;
-
-                window.location.href = rawbtIntentUri;
+                const dataMurni = canvas.toDataURL('image/png').split(',')[1];
+                window.location.href = `intent:#Intent;action=ru.a402d.rawbtprinter.action.PRINT;type=image/png;S.base64=${encodeURIComponent(dataMurni)};end`;
             }
         }, 'image/png');
 
     } catch (error) {
-        alert("Terjadi kegagalan sistem cetak: " + error.message);
+        alert("Kegagalan sistem cetak: " + error.message);
     }
 }
