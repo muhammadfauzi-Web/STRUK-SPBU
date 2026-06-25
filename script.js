@@ -129,13 +129,13 @@ function kembaliKeInput() {
 async function cetakStruk() {
     try {
         if (typeof html2canvas === 'undefined') {
-            alert("Error: html2canvas tidak dimuat!");
+            alert("Error: Pustaka html2canvas belum dimuat di HTML!");
             return;
         }
 
         const elemenStruk = document.querySelector('.struk-paper'); 
         if (!elemenStruk) {
-            alert("Elemen struk-paper tidak ditemukan!");
+            alert("Error: Area struk tidak ditemukan!");
             return;
         }
         
@@ -145,16 +145,34 @@ async function cetakStruk() {
             backgroundColor: "#ffffff"
         });
         
-        const dataGambarBase64 = canvas.toDataURL('image/png');
-        const dataMurni = dataGambarBase64.split(',')[1];
+        canvas.toBlob(async (blob) => {
+            const fileGambar = new File([blob], "struk-spbu.png", { type: "image/png" });
+            const dataShare = {
+                title: 'Cetak Struk SPBU',
+                files: [fileGambar]
+            };
 
-        const rawbtIntentUri = `intent:#Intent;` +
-            `action=ru.a402d.rawbtprinter.action.PRINT;` +
-            `type=image/png;` +
-            `S.base64=${encodeURIComponent(dataMurni)};` +
-            `end`;
+            if (navigator.canShare && navigator.canShare(dataShare)) {
+                try {
+                    await navigator.share(dataShare);
+                    console.log("Berhasil mengirim gambar ke aplikasi Bluetooth.");
+                } catch (shareError) {
+                    console.log("User membatalkan share atau terjadi kendala: ", shareError);
+                }
+            } else {
+                console.log("Web Share API tidak didukung, menggunakan jalur Intent RawBT...");
+                const dataGambarBase64 = canvas.toDataURL('image/png');
+                const dataMurni = dataGambarBase64.split(',')[1];
+                
+                const rawbtIntentUri = `intent:#Intent;` +
+                    `action=ru.a402d.rawbtprinter.action.PRINT;` +
+                    `type=image/png;` +
+                    `S.base64=${encodeURIComponent(dataMurni)};` +
+                    `end`;
 
-        window.location.href = rawbtIntentUri;
+                window.location.href = rawbtIntentUri;
+            }
+        }, 'image/png');
 
     } catch (error) {
         alert("Terjadi kegagalan sistem cetak: " + error.message);
