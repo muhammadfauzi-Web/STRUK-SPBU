@@ -152,7 +152,6 @@ function kembaliKeInput() {
     document.getElementById('halaman-input').classList.remove('hidden');
 }
 
-// FUNGSI CETAK SHARE API TERBAIK (TIDAK BERUBAH)
 async function cetakStruk() {
     try {
         if (typeof html2canvas === 'undefined') {
@@ -163,32 +162,42 @@ async function cetakStruk() {
         const elemenStruk = document.querySelector('.struk-paper'); 
         if (!elemenStruk) return alert("Error: Area struk tidak ditemukan!");
         
+        // Render gambar dengan resolusi tinggi
         const canvas = await html2canvas(elemenStruk, {
             scale: 3, 
             useCORS: true,
             backgroundColor: "#ffffff",
-            logging: false,
-            onclone: (dokumenKloning) => {
-                const elemenKloning = dokumenKloning.querySelector('.struk-paper');
-                if (elemenKloning) {
-                    elemenKloning.style.fontSmoothing = "antialiased";
-                    elemenKloning.style.webkitFontSmoothing = "antialiased";
-                    elemenKloning.style.mozOsxFontSmoothing = "grayscale";
-                    elemenKloning.style.textRendering = "optimizeLegibility";
-                }
-            }
+            logging: false
         });
         
+        // Ubah canvas menjadi file Blob (Gambar Asli, bukan Base64 Text)
         canvas.toBlob(async (blob) => {
-            const fileGambar = new File([blob], "struk-spbu.png", { type: "image/png" });
+            const fileGambar = new File([blob], "Struk_SPBU.png", { type: "image/png" });
             const dataShare = { title: 'Cetak Struk SPBU', files: [fileGambar] };
 
+            // Coba buka menu "Bagikan" bawaan HP (WhatsApp, Printer, dll)
             if (navigator.canShare && navigator.canShare(dataShare)) {
-                try { await navigator.share(dataShare); } 
-                catch (shareError) { console.log("Batal share:", shareError); }
+                try { 
+                    await navigator.share(dataShare); 
+                } catch (shareError) { 
+                    console.log("Membatalkan share atau gagal:", shareError); 
+                }
             } else {
-                const dataMurni = canvas.toDataURL('image/png').split(',')[1];
-                window.location.href = `intent:#Intent;action=ru.a402d.rawbtprinter.action.PRINT;type=image/png;S.base64=${encodeURIComponent(dataMurni)};end`;
+                // JIKA SHARE GAGAL/TIDAK DIDUKUNG: Otomatis Unduh ke Galeri HP
+                const urlGambar = URL.createObjectURL(blob);
+                const linkUnduh = document.createElement('a');
+                linkUnduh.href = urlGambar;
+                linkUnduh.download = "Struk_SPBU.png";
+                
+                // Proses klik otomatis untuk mengunduh
+                document.body.appendChild(linkUnduh);
+                linkUnduh.click();
+                document.body.removeChild(linkUnduh);
+                
+                // Bersihkan memori
+                URL.revokeObjectURL(urlGambar);
+                
+                alert("Berhasil! Gambar struk telah diunduh ke HP Anda. Silakan buka galeri dan cetak dari sana untuk hasil yang bersih.");
             }
         }, 'image/png');
 
