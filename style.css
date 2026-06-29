@@ -10,12 +10,63 @@ body {
     color: #333333;
 }
 
+#kembalian {
+    background: white;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    position: relative;
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 17px;
+    color: #111111;
+}
+
+.halaman-input {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    padding: 12px;
+    box-sizing: border-box;
+    z-index: 1; 
+    background-color: #fce4e4; 
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.halaman-input::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('spbu.png'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -1; 
+    pointer-events: none;
+}
+
+.halaman-input .input-group,
+.halaman-input .form-row,
+.kembalian-text,
+.kembalian-text input,
+.btn-submit {
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
 .hidden {
     display: none !important;
 }
 
 .app-header, .print-header {
-    background-color:#e00000 ;
+    background-color: #e00000;
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -51,7 +102,7 @@ body {
 }
 
 .form-container {
-    padding: 15px;
+    padding: 15px 0;
 }
 
 .input-group {
@@ -74,7 +125,7 @@ body {
     width: 100%;
     border: none;
     outline: none;
-    font-size: 15px;
+    font-size: 17px;
     background: transparent;
     color: #111111;
 }
@@ -98,12 +149,6 @@ body {
     padding-bottom: 12px;
 }
 
-.kembalian-text {
-    font-size: 14px;
-    font-weight: bold;
-    margin: 10px 0;
-}
-
 .divider {
     border: 0;
     border-top: 1px solid #dddddd;
@@ -122,9 +167,8 @@ body {
     text-align: center;
 }
 
-
 .btn-submit {
-    background-color: #de5454;
+    background-color: #e00000;
     color: white;
 }
 
@@ -217,7 +261,6 @@ body {
     justify-content: space-between;
     width: 100%;
     flex-direction: column;
-    width: 100%;
 }
 
 .nilai-kanan-cash {
