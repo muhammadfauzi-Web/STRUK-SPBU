@@ -1,6 +1,5 @@
 let kailPrinter = null;
 
-// Konfigurasi Harga Fleksibel
 const HARGA_PERTALITE = 10000;
 const HARGA_PERTAMAX = 16250;
 const HARGA_NON_SUBSIDI_PERTALITE = 18040;
@@ -11,9 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputPembayaran = document.getElementById('pembayaran');
     const btnSimpan = document.getElementById('btn-simpan');
     const btnKembali = document.getElementById('btn-kembali');
-    const inputJenisBBM = document.getElementById('jenis_bbm'); // Dropdown jenis BBM
+    const inputJenisBBM = document.getElementById('jenis_bbm');
     
-    // Deteksi jika kasir ganti jenis BBM, otomatis hitung ulang volumenya
     if (inputJenisBBM) inputJenisBBM.addEventListener('change', hitungVolume);
     if (inputJumlah) inputJumlah.addEventListener('input', hitungVolume);
     if (inputPembayaran) inputPembayaran.addEventListener('input', hitungKembalian);
@@ -28,11 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const hari = String(sekarang.getDate()).padStart(2, '0');
         const jam = String(sekarang.getHours()).padStart(2, '0');
         const menit = String(sekarang.getMinutes()).padStart(2, '0');
-        inputWaktu.value = `${tahun}-${bulan}-${hari}T${jam}:${menit}`;
+        const detik = String(sekarang.getSeconds()).padStart(2, '0');
+        inputWaktu.value = `${tahun}-${bulan}-${hari}T${jam}:${menit}:${detik}`;
     }
 });
 
-// Fungsi Pengecekan Harga Aktif
 function getHargaAktif() {
     const jenis = document.getElementById('jenis_bbm');
     const val = jenis ? jenis.value.toUpperCase() : "PERTALITE";
@@ -63,7 +61,7 @@ function hitungKembalian() {
     if (teksKembalian) {
         if (pembayaran >= jumlah && jumlah > 0) {
             const kembalian = pembayaran - jumlah;
-            teksKembalian.innerText = `Kembalian = ${kembalian.toLocaleString('id-ID')}`;
+            teksKembalian.innerText = `Kembalian = ${kembalian.toLocaleString('en-US')}`;
         } else {
             teksKembalian.innerText = "Kembalian = 0";
         }
@@ -74,13 +72,30 @@ function dapatkanFormatWaktu() {
     const waktuRaw = document.getElementById('waktu').value;
     if (!waktuRaw) return "-";
     try {
-        const t = waktuRaw.split("T");
-        const tgl = t[0].split("-");
-        return `${tgl[2]}/${tgl[1]}/${tgl[0]} ${t[1]}`;
+        const tanggalObjek = new Date(waktuRaw);
+        
+        const hari = String(tanggalObjek.getDate()).padStart(2, '0');
+        const bulan = String(tanggalObjek.getMonth() + 1).padStart(2, '0');
+        const tahun = tanggalObjek.getFullYear();
+        
+        const jam = String(tanggalObjek.getHours()).padStart(2, '0');
+        const menit = String(tanggalObjek.getMinutes()).padStart(2, '0');
+
+        let detik = tanggalObjek.getSeconds();
+        
+        if (detik === 0) {
+            detik = new Date().getSeconds();
+        }
+        
+        const detikFormat = String(detik).padStart(2, '0');
+        
+        return `${hari}/${bulan}/${tahun} ${jam}:${menit}:${detikFormat}`;
     } catch (e) {
         return waktuRaw;
     }
 }
+
+
 
 function prosesSimpan() {
     const no_trans_raw = document.getElementById('no_trans').value || "-";
@@ -99,49 +114,53 @@ function prosesSimpan() {
     const volume_format = Number.isInteger(vol_raw) ? vol_raw.toString() : vol_raw.toFixed(2).replace('.', ',');
     const no_trans = no_trans_raw !== "-" ? no_trans_raw.padStart(2, '0') : "-";
     
-    const dibayar = jumlah_raw.toLocaleString('id-ID');
-    const cash = pembayaran_raw.toLocaleString('id-ID');
+    const dibayar = jumlah_raw.toLocaleString('en-US');
+    const cash = pembayaran_raw.toLocaleString('en-US');
     const hitung_change = pembayaran_raw - jumlah_raw;
-    const change = hitung_change > 0 ? hitung_change.toLocaleString('id-ID') : "0";
+    const change = hitung_change > 0 ? hitung_change.toLocaleString('en-US') : "0";
     const waktu_format = dapatkanFormatWaktu();
 
-    // Injeksi Data Umum
     if(document.getElementById('out-notrans')) document.getElementById('out-notrans').innerText = no_trans;
     if(document.getElementById('out-shift')) document.getElementById('out-shift').innerText = shift;
     if(document.getElementById('out-waktu')) document.getElementById('out-waktu').innerText = waktu_format;
-    if(document.getElementById('out-pompa')) document.getElementById('out-pompa').innerText = ": " + pompa;
-    if(document.getElementById('out-operator')) document.getElementById('out-operator').innerText = ": " + operator;
-    if(document.getElementById('out-bbm')) document.getElementById('out-bbm').innerText = ": " + jenis_bbm;
-    if(document.getElementById('out-volume')) document.getElementById('out-volume').innerText = ": " + volume_format + " liter";
-    if(document.getElementById('out-dibayar')) document.getElementById('out-dibayar').innerText = ": " + dibayar;
-    if(document.getElementById('out-cash')) document.getElementById('out-cash').innerText = " " + cash;
-    if(document.getElementById('out-change')) document.getElementById('out-change').innerText = " " + change;
-    if(document.getElementById('out-kilometer')) document.getElementById('out-kilometer').innerText = ": " + km_raw;
-    if(document.getElementById('out-plat')) document.getElementById('out-plat').innerText = ": " + no_plat.toUpperCase();
 
-    // ========================================================
-    // LOGIKA PERCABANGAN: PERTAMAX vs PERTALITE
-    // ========================================================
-    const elemenSubsidi = document.querySelectorAll('.baris-subsidi');
+    const divPertalite = document.getElementById('layout-pertalite');
+    const divPertamax = document.getElementById('layout-pertamax');
 
     if (jenis_bbm.includes("PERTAMAX")) {
-        // MODE PERTAMAX: Sembunyikan elemen subsidi & atur harga 16.250
-        elemenSubsidi.forEach(el => el.style.display = 'none');
-        if(document.getElementById('out-hargajual')) document.getElementById('out-hargajual').innerText = ": 16.250/liter";
+        if(divPertalite) divPertalite.style.display = 'none';
+        if(divPertamax) divPertamax.style.display = 'block';
+        
+        if(document.getElementById('out-pompa-pmx')) document.getElementById('out-pompa-pmx').innerText = ": " + pompa;
+        if(document.getElementById('out-volume-pmx')) document.getElementById('out-volume-pmx').innerText = ": (L) " + volume_format;
+        if(document.getElementById('out-total-pmx')) document.getElementById('out-total-pmx').innerText = ": " + dibayar;
+        if(document.getElementById('out-operator-pmx')) document.getElementById('out-operator-pmx').innerText = ": " + operator;
+        if(document.getElementById('out-cash-pmx')) document.getElementById('out-cash-pmx').innerText = cash;
+        if(document.getElementById('out-odometer-pmx')) document.getElementById('out-odometer-pmx').innerText = ": " + km_raw;
+        if(document.getElementById('out-plat-pmx')) document.getElementById('out-plat-pmx').innerText = ": " + no_plat.toUpperCase();
         
     } else {
-        // MODE PERTALITE: Munculkan elemen subsidi & hitung matematika subsidi
-        elemenSubsidi.forEach(el => el.style.display = ''); // atau '' sesuai CSS asli Anda
-        if(document.getElementById('out-hargajual')) document.getElementById('out-hargajual').innerText = ": 10.000/liter";
+        if(divPertalite) divPertalite.style.display = 'block';
+        if(divPertamax) divPertamax.style.display = 'none';
+   
+        if(document.getElementById('out-pompa')) document.getElementById('out-pompa').innerText = ": " + pompa;
+        if(document.getElementById('out-operator')) document.getElementById('out-operator').innerText = ": " + operator;
+        if(document.getElementById('out-bbm')) document.getElementById('out-bbm').innerText = ": " + jenis_bbm;
+        if(document.getElementById('out-volume')) document.getElementById('out-volume').innerText = ": " + volume_format + " liter";
+        if(document.getElementById('out-dibayar')) document.getElementById('out-dibayar').innerText = " " + dibayar;
+        if(document.getElementById('out-cash')) document.getElementById('out-cash').innerText = "" + cash;
+        if(document.getElementById('out-change')) document.getElementById('out-change').innerText = "" + change;
+        if(document.getElementById('out-kilometer')) document.getElementById('out-kilometer').innerText = ": " + km_raw;
+        if(document.getElementById('out-plat')) document.getElementById('out-plat').innerText = ": " + no_plat.toUpperCase();
         
-        const t_subsidi = Math.round(vol_raw * HARGA_NON_SUBSIDI_PERTALITE).toLocaleString('id-ID');
-        const p_subsidi = Math.round(vol_raw * SUBSIDI_PEMERINTAH_PERTALITE).toLocaleString('id-ID');
+        const t_subsidi = Math.round(vol_raw * HARGA_NON_SUBSIDI_PERTALITE).toLocaleString('en-US');
+        const p_subsidi = Math.round(vol_raw * SUBSIDI_PEMERINTAH_PERTALITE).toLocaleString('en-US');
         
-        if(document.getElementById('out-tanpasubsidi')) document.getElementById('out-tanpasubsidi').innerText = ": " + t_subsidi;
-        if(document.getElementById('out-totalsubsidi')) document.getElementById('out-totalsubsidi').innerText = ": " + p_subsidi;
+        if(document.getElementById('out-tanpasubsidi')) document.getElementById('out-tanpasubsidi').innerText = " " + t_subsidi;
+        if(document.getElementById('out-totalsubsidi')) document.getElementById('out-totalsubsidi').innerText = " " + p_subsidi;
         if(document.getElementById('out-teks-subsiditotal')) document.getElementById('out-teks-subsiditotal').innerText = p_subsidi;
     }
-
+    
     document.getElementById('halaman-input').classList.add('hidden');
     document.getElementById('halaman-print').classList.remove('hidden');
     window.scrollTo(0, 0);
@@ -162,7 +181,6 @@ async function cetakStruk() {
         const elemenStruk = document.querySelector('.struk-paper'); 
         if (!elemenStruk) return alert("Error: Area struk tidak ditemukan!");
         
-        // Render gambar dengan resolusi tinggi
         const canvas = await html2canvas(elemenStruk, {
             scale: 3, 
             useCORS: true,
@@ -170,12 +188,10 @@ async function cetakStruk() {
             logging: false
         });
         
-        // Ubah canvas menjadi file Blob (Gambar Asli, bukan Base64 Text)
         canvas.toBlob(async (blob) => {
             const fileGambar = new File([blob], "Struk_SPBU.png", { type: "image/png" });
             const dataShare = { title: 'Cetak Struk SPBU', files: [fileGambar] };
 
-            // Coba buka menu "Bagikan" bawaan HP (WhatsApp, Printer, dll)
             if (navigator.canShare && navigator.canShare(dataShare)) {
                 try { 
                     await navigator.share(dataShare); 
@@ -183,20 +199,16 @@ async function cetakStruk() {
                     console.log("Membatalkan share atau gagal:", shareError); 
                 }
             } else {
-                // JIKA SHARE GAGAL/TIDAK DIDUKUNG: Otomatis Unduh ke Galeri HP
                 const urlGambar = URL.createObjectURL(blob);
                 const linkUnduh = document.createElement('a');
                 linkUnduh.href = urlGambar;
                 linkUnduh.download = "Struk_SPBU.png";
                 
-                // Proses klik otomatis untuk mengunduh
                 document.body.appendChild(linkUnduh);
                 linkUnduh.click();
                 document.body.removeChild(linkUnduh);
                 
-                // Bersihkan memori
                 URL.revokeObjectURL(urlGambar);
-                
                 alert("Berhasil! Gambar struk telah diunduh ke HP Anda. Silakan buka galeri dan cetak dari sana untuk hasil yang bersih.");
             }
         }, 'image/png');
