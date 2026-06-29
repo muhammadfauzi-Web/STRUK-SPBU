@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <div id="halaman-input">
+    <div id="halaman-input" class="halaman-input">
         <div class="app-header">
             <span class="header-title">Edit Struk</span>
         </div>
@@ -75,7 +75,8 @@
                 <input type="number" id="pembayaran" placeholder="Jumlah Pembayaran (Rp.)">
             </div>
 
-            <div class="kembalian-text">Kembalian = 0</div>
+            <div class="kembalian-text"><input id="kembalian" placeholder="Kembalian = " readonly>
+            </div>
 
             <hr class="divider">
 
@@ -179,7 +180,7 @@
                 </div>
                 <div class="struk-row-split">
                     <span class="font-bold">CHANGE</span>
-                    <span id="out-change" style="text-align: right; flex: 1;" class="font-bold">-</span>
+                    <span id="out-change" style="text-align: right; flex: 1;" class="font-bold"></span>
                 </div>
 
                 <div class="struk-line">-------------------------------------</div>
