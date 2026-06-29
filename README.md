@@ -4,7 +4,7 @@ Aplikasi kasir berbasis web (*web-based tool*) yang dirancang khusus untuk mempe
 
 ---
 
-## 🔗 Link Struk/Nota SPBU
+## 🔗 Link Struk / Nota SPBU
 
 Buka dan coba langsung aplikasinya di sini:
 👉 **[Buka Website Struk SPBU](https://muhammadfauzi-web.github.io/STRUK-SPBU/)**
