@@ -56,17 +56,18 @@ function hitungVolume() {
 function hitungKembalian() {
     const jumlah = parseInt(document.getElementById('jumlah').value || 0);
     const pembayaran = parseInt(document.getElementById('pembayaran').value || 0);
-    const teksKembalian = document.querySelector('.kembalian-text');
+    const inputKembalian = document.getElementById('kembalian');
     
-    if (teksKembalian) {
+    if (inputKembalian) {
         if (pembayaran >= jumlah && jumlah > 0) {
             const kembalian = pembayaran - jumlah;
-            teksKembalian.innerText = `Kembalian = ${kembalian.toLocaleString('en-US')}`;
+            inputKembalian.value = "Kembalian = "+ kembalian.toLocaleString('en-US');
         } else {
-            teksKembalian.innerText = "Kembalian = 0";
+            inputKembalian.value = "";
         }
     }
 }
+
 
 function dapatkanFormatWaktu() {
     const waktuRaw = document.getElementById('waktu').value;
