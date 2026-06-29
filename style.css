@@ -1,6 +1,3 @@
-/* ==========================================================================
-   1. GLOBAL & HALAMAN INPUT (FORM EDIT STRUK)
-   ========================================================================== */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -17,7 +14,6 @@ body {
     display: none !important;
 }
 
-/* Header Aplikasi */
 .app-header, .print-header {
     background-color:#e00000 ;
     color: #ffffff;
@@ -54,7 +50,6 @@ body {
     text-align: right;
 }
 
-/* Desain Form Input */
 .form-container {
     padding: 15px;
 }
@@ -115,7 +110,6 @@ body {
     margin: 15px 0;
 }
 
-/* Tombol */
 .btn {
     width: 100%;
     padding: 12px;
@@ -136,26 +130,24 @@ body {
 
 .struk-logo {
     width: auto;
-    max-width: 150px;      /* Membatasi lebar logo agar pas, tidak kebesaran */
+    max-width: 150px;
     height: auto;
     margin: 0 auto 4px auto;
     display: block;
 }
 
-
-
-/* 1. Menyesuaikan Kertas Simulasi & Ukuran Teks Utama agar Padat */
 .struk-paper {
     width: 100%;
-    max-width: 400px;          /* Sedikit diperkecil agar teks merapat ke tengah */
+    max-width: 400px;
     margin: 0 auto;
-    padding: 5px;       /* Merapatkan jarak tepi kertas */
+    padding: 5px;
     box-sizing: border-box;
-    font-family: monospace;
-    font-size: 17px;           /* Ukuran font kasir standar */
-    line-height: 1.50;          /* Merapatkan jarak spasi antar baris atas-bawah */
+    font-family: 'PT Mono', monospace;
+    font-size: 20px;
+    font-weight: 1000;
+    color: #000000;
+    line-height: 1.50;
     background-color: #ffffff;
-    color: #000;
 }
 
 .struk-row-split {
@@ -165,36 +157,70 @@ body {
     width: 100%;
 }
 
-/* DIUBAH: Mengecilkan lebar lajur kiri agar label rapat dan titik dua (:) geser ke kiri */
 .struk-row-split > span:first-child,
 .struk-row-split > div:first-child {
-    width: 185px;               /* Diturunkan ke 95px agar teks label kiri sangat rapat */
+    width: 160px;
     display: inline-block;
     flex-shrink: 0;
     text-align: left;
 }
 
-
-/* Mengatur teks nilai di sebelah kanan setelah titik dua */
 .struk-row-split > span:last-child {
     flex: 1;
     text-align: left;
 }
 
-/* Trik Khusus: Memaksa baris CASH & CHANGE tetap memisah di ujung kanan-kiri kertas */
 .struk-row-split:has(#out-cash), 
 .struk-row-split:has(#out-change) {
     justify-content: space-between; 
 }
 
+.struk-row-split-2 {
+    display: grid;
+    grid-template-columns: 1fr 10px 120px; 
+    gap: 5px;
+    align-items: center;
+    margin-bottom: 2px;
+}
 
+.struk-row-split-2 .titik-dua {
+    text-align: center;
+}
 
-/* Garis Pembatas Putus-putus */
+.struk-row-split-2 .nilai-kanan {
+    text-align: right;
+    padding-right: 45px; 
+}
+
 .struk-line {
     text-align: center;
     margin: 3px 0;
-    letter-spacing: 0px;           /* Merapatkan simbol minus agar menyambung lurus */
+    letter-spacing: 0px;
     overflow: hidden;
     white-space: nowrap;
 }
 
+.pmx-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.pmx-row span:first-child {
+    display: inline-block;
+    width: 165px; 
+}
+
+.pmx-row-cash {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    flex-direction: column;
+    width: 100%;
+}
+
+.nilai-kanan-cash {
+    text-align: right;
+    flex: 1;
+}
