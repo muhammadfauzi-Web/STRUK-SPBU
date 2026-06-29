@@ -6,6 +6,9 @@
     <title>Edit & Cetak Struk SPBU</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -28,7 +31,7 @@
                     </select>
                 </div>
                 <div class="input-group flex-2">
-                    <input type="datetime-local" id="waktu">
+                    <input type="datetime-local" id="waktu" step="1">
                 </div>
             </div>
 
@@ -37,7 +40,7 @@
                     <select id="pompa">
                         <option value="1">Pompa 1</option>
                         <option value="2">Pompa 2</option>
-                        <option value="3">Pompa 3</option>
+                        <option value="4">Pompa 4</option>
                     </select>
                 </div>
                 <div class="input-group flex-1">
@@ -54,10 +57,9 @@
 
             <div class="input-group">
                 <select id="jenis_bbm">
-                    <option value="PERTALITE">PERTALITE 10.000/Liter</option>
-                    <option value="PERTAMAX">PERTAMAX 16.250/Liter</option>
+                    <option value="PERTALITE">PERTALITE 10,000/liter</option>
+                    <option value="PERTAMAX">PERTAMAX 16,250/liter</option>
                 </select>
-                
             </div>
 
             <div class="form-row">
@@ -94,7 +96,7 @@
             <button id="btn-kembali" class="back-btn">←</button>
             <button id="btn-cetak-thermal" class="print-icon-btn" onclick="cetakStruk()">PRINT 🖨️</button>
         </div>
-        <div class="struk-paper" style="text-align: left;">
+                <div class="struk-paper" style="text-align: left;">
             <div class="struk-logo-container" style="text-align: center;">
                 <img src="logo.png" alt="PERTAMINA" class="struk-logo" onerror="this.style.display='none'">
             </div>
@@ -104,90 +106,147 @@
                 JL. RAYA KEBON KOLOT
             </div>
             <div class="struk-row-split">
-                <span>Shift : <span id="out-shift">-</span></span>
-                <span>No. Trans : <span id="out-notrans">-</span></span>
+                <span>Shift: <span id="out-shift">-</span></span>
+                <span>No.Trans: <span id="out-notrans">-</span></span>
             </div>
-            <div>Waktu : <span id="out-waktu">-</span></div>
+            <div>Waktu: <span id="out-waktu">-</span></div>
             
             <div class="struk-line">-------------------------------------</div>
 
-            <div class="struk-row-split">
-                <span>Pulau/Pompa</span>
-                <span id="out-pompa">: -</span>
-            </div>
-            <div class="struk-row-split">
-                <span>Operator</span>
-                <span id="out-operator">: -</span>
-            </div>
-            <div class="struk-row-split">
-                <span>Jenis BBM</span>
-                <span id="out-bbm">: -</span>
-            </div>
-            <div class="struk-row-split">
-                <span>Volume</span>
-                <span id="out-volume">: -</span>
-            </div>
+            <div id="layout-pertalite">
+                <div class="struk-row-split">
+                    <span>Pulau/Pompa</span>
+                    <span id="out-pompa">: -</span>
+                </div>
+                <div class="struk-row-split">
+                    <span>Operator</span>
+                    <span id="out-operator">: -</span>
+                </div>
+                <div class="struk-row-split">
+                    <span>Jenis BBM</span>
+                    <span id="out-bbm">: -</span>
+                </div>
+                <div class="struk-row-split">
+                    <span>Volume</span>
+                    <span id="out-volume">: -</span>
+                </div>
 
-            <div class="struk-line">-------------------------------------</div>
-            <div>Informasi Harga BBM (Rp/Liter)</div>
-            <div class="struk-row-split baris-subsidi">
-                <span>Harga Non Subsidi</span>
-                <span>: 18.040</span>
-            </div>
-            <div class="struk-row-split baris-subsidi">
-                <span>Subsidi Pemerintah</span>
-                <span>: 8.040</span>
-            </div>
-            <div class="struk-row-split">
-                <span>Harga Jual</span>
-                <span id="out-hargajual">: 10.000</span>
-            </div>
+                <div class="struk-line">-------------------------------------</div>
+                <div>Informasi Harga BBM (Rp/Liter)</div>
 
-            <div class="struk-line">-------------------------------------</div>
-            <div>Total Penjualan (Rp)</div>
-            <div class="struk-row-split baris-subsidi">
-                <span>Tanpa Subsidi</span>
-                <span id="out-tanpasubsidi">: -</span>
-            </div>
-            <div class="struk-row-split baris-subsidi">
-                <span>Subsidi Pemerintah</span>
-                <span id="out-totalsubsidi">: -</span>
-            </div>
-            <div class="struk-row-split">
-                <span>Dibayar Konsumen</span>
-                <span id="out-dibayar">: -</span>
-            </div>
+                <div id="row-harga-non-subsidi" class="struk-row-split-2 baris-subsidi">
+                    <span>Harga Non Subsidi</span>
+                    <span class="titik-dua">:</span>
+                    <span class="nilai-kanan">18,040</span>
+                </div>
 
-            <div class="struk-line">-------------------------------------</div>
-            <div class="struk-row-split">
-                <span class="font-bold">CASH</span>
-                <span id="out-cash" style="text-align: right; flex: 1;"class="font-bold">0</span>
-            </div>
-            <div class="struk-row-split">
-                <span class="font-bold">CHANGE</span>
-                <span id="out-change" style="text-align: right; flex: 1;" class="font-bold" >-</span>
-            </div>
+                <div id="row-subsidi-harga" class="struk-row-split-2 baris-subsidi">
+                    <span>Subsidi Pemerintah</span>
+                    <span class="titik-dua">:</span>
+                    <span class="nilai-kanan">8,040</span>
+                </div>
 
-            <div class="struk-line">-------------------------------------</div>
-            
-            <div class="struk-row-split">
-                <span>Kilometer</span>
-                <span id="out-kilometer">: -</span>
-            </div>
-            <div class="struk-row-split">
-                <span>No. Plat</span>
-                <span id="out-plat">: -</span>
-            </div>
+                <div class="struk-row-split-2 baris-subsidi">
+                    <span>Harga Jual</span>
+                    <span class="titik-dua">:</span>
+                    <span class="nilai-kanan">10,000</span>
+                </div>
+                <div class="struk-line baris-subsidi">-------------------------------------</div>
+                <div>Total Penjualan (Rp)</div>
 
-            <div class="struk-line">-------------------------------------</div>
+                <div id="row-tanpa-subsidi" class="struk-row-split-2 baris-subsidi">
+                    <span>Tanpa Subsidi</span>
+                    <span class="titik-dua">:</span>
+                    <span id="out-tanpasubsidi" class="nilai-kanan">-</span>
+                </div>
 
-            <div class="baris-subsidi" style="text-align: center; margin-top: 10px; font-size: 17px; width: 100%;">
-                Anda mendapat subsidi dari<br>
-                Pemerintah sebesar Rp. <span id="out-teks-subsiditotal">0</span><br>
-                (Perhitungan Subsidi Unaudited atau Estimasi). Gunakan BBM Subsidi secara bijak.
+                <div id="row-subsidi-total" class="struk-row-split-2 baris-subsidi">
+                    <span>Subsidi Pemerintah</span>
+                    <span class="titik-dua">:</span>
+                    <span id="out-totalsubsidi" class="nilai-kanan">-</span>
+                </div>
+
+                <div class="struk-row-split-2">
+                    <span>Dibayar Konsumen</span>
+                    <span class="titik-dua">:</span>
+                    <span id="out-dibayar" class="nilai-kanan">-</span>
+                </div>
+
+                <div class="struk-line">-------------------------------------</div>
+                <div class="struk-row-split">
+                    <span class="font-bold">CASH</span>
+                    <span id="out-cash" style="text-align: right; flex: 1;" class="font-bold">0</span>
+                </div>
+                <div class="struk-row-split">
+                    <span class="font-bold">CHANGE</span>
+                    <span id="out-change" style="text-align: right; flex: 1;" class="font-bold">-</span>
+                </div>
+
+                <div class="struk-line">-------------------------------------</div>
+                
+                <div class="struk-row-split">
+                    <span>Kilometer</span>
+                    <span id="out-kilometer">: -</span>
+                </div>
+                <div class="struk-row-split">
+                    <span>No. Plat</span>
+                    <span id="out-plat">: -</span>
+                </div>
+                
+                <div id="row-pesan-subsidi" class="struk-line">-------------------------------------</div>
+
+                <div class="baris-subsidi" style="text-align: center; margin-top: 10px; font-size: 17px; width: 100%;">
+                    Anda mendapat subsidi dari<br>
+                    Pemerintah sebesar Rp.<span id="out-teks-subsiditotal">0</span><br>
+                    (Perhitungan Subsidi Unaudited atau Estimasi). Gunakan BBM Subsidi secara bijak.
+                </div>
             </div>
-        </div>
+            <div id="layout-pertamax" style="display: none;" class="layout-pertamax-container">
+    <div class="pmx-row">
+        <span>Pulau/Pompa</span>
+        <span id="out-pompa-pmx">: -</span>
     </div>
+    <div class="pmx-row">
+        <span>Nama Produk</span>
+        <span>: PERTAMAX</span>
+    </div>
+    <div class="pmx-row">
+        <span>Harga/Liter</span>
+        <span>: RP.16,250</span>
+    </div>
+    <div class="pmx-row">
+        <span>Volume</span>
+        <span id="out-volume-pmx">: -</span>
+    </div>
+    <div class="pmx-row">
+        <span>Total Harga</span>
+        <span id="out-total-pmx">: -</span>
+    </div>
+    <div class="pmx-row">
+        <span>Operator</span>
+        <span id="out-operator-pmx">: -</span>
+    </div>
+    
+    <div class="struk-line">-------------------------------------</div>
+    
+    <div class="pmx-row-cash">
+        <span class="font-bold">CASH</span>
+        <span id="out-cash-pmx" class="font-bold nilai-kanan-cash">0</span>
+    </div>
+    
+    <div class="struk-line">-------------------------------------</div>
+    
+    <div class="pmx-row">
+        <span>Odo Meter</span>
+        <span id="out-odometer-pmx">: -</span>
+    </div>
+    <div class="pmx-row">
+        <span>No. Plat</span>
+        <span id="out-plat-pmx">: -</span>
+    </div>
+</div>
+        </div>
+
 
     <script src="script.js"></script>
 </body>
