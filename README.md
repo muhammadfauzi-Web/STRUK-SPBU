@@ -4,7 +4,7 @@ Aplikasi kasir berbasis web (*web-based tool*) yang dirancang khusus untuk mempe
 
 ---
 
-## 🔗 Link STRUK PEMBUATAN SPBU
+## 🔗 Link MEMBUAT STRUK SPBU
 
 Buka dan coba langsung aplikasinya di sini:
 👉 **[Buka Website Struk SPBU](https://muhammadfauzi-web.github.io/STRUK-SPBU/)**
